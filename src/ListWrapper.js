@@ -1,6 +1,7 @@
 import React from "react";
 import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
+import useWindowDimensions from "./hooks/useWindowDimensions";
 
 export default function ListWrapper({
   hasNextPage,
@@ -8,9 +9,13 @@ export default function ListWrapper({
   items,
   loadNextPage
 }) {
+
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const itemCount = hasNextPage ? items.length + 1 : items.length;
   const loadMoreItems = isNextPageLoading ? () => {} : loadNextPage;
   const isItemLoaded = (index) => !hasNextPage || index < items.length;
+
+  
   const Item = ({ index, style }) => {
     let content;
     if (!isItemLoaded(index)) {
@@ -31,11 +36,12 @@ export default function ListWrapper({
       {({ onItemsRendered, ref }) => (
         <List
           className="List"
-          height={150}
+          height={windowHeight - 100}
           itemCount={itemCount}
-          itemSize={30}
+          itemSize={40}
           onItemsRendered={onItemsRendered}
           ref={ref}
+          width={windowWidth - 100}
         >
           {Item}
         </List>
