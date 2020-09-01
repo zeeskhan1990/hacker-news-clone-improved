@@ -2,6 +2,7 @@ import React from "react";
 import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import useWindowDimensions from "./hooks/useWindowDimensions";
+import {list} from "./constants";
 
 export default function ListWrapper({
   hasNextPage,
@@ -21,7 +22,7 @@ export default function ListWrapper({
     if (!isItemLoaded(index)) {
       content = "Loading...";
     } else {
-      content = items[index].name;
+      content = items[index].id;
     }
 
     return <div style={style}>{content}</div>;
@@ -42,6 +43,8 @@ export default function ListWrapper({
           onItemsRendered={onItemsRendered}
           ref={ref}
           width={windowWidth - 100}
+          minimumBatchSize={list.batchSize}
+          threshold={20}
         >
           {Item}
         </List>
