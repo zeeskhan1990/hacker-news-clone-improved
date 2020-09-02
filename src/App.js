@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import ListWrapper from "./ListWrapper";
 import {list} from "./constants";
 import request from "./request";
+import "./App.css";
 
 function App() {
   const [hasNextPage, setHasNextPage] = useState(true)

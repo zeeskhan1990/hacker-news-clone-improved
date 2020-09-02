@@ -5,6 +5,7 @@ import styled from "styled-components";
 import useWindowDimensions from "./hooks/useWindowDimensions";
 import {list} from "./constants";
 import logo from "./assets/images/y18.gif";
+import arrow from "./assets/images/grayarrow.gif";
 
 const Wrapper = styled.div`
 margin-top: 10px;
@@ -17,19 +18,47 @@ background-color: #ff6600;
 display: flex;
 align-items: center;
 .logo {
-  margin-top: 3px;
   margin-left: 5px;
+  margin-bottom: -1px;
+  margin-top: 1px;
   img {
     border:1px white solid;
   }
 }
 .content {
-  line-height:12pt;
   height:10px;
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 10pt;
+  margin-left: 5px;
   color: #222222;
   line-height: 12px;
+}
+`
+
+const Container = styled.div`
+  background-color: #F6F6EF;
+`
+
+const ListItem = styled.div`
+margin-left: 5px;
+.main {
+  display: flex;
+  .count {    
+    width: 30px;
+    display: flex;
+    align-items: center;
+  }
+  a {
+    &:visited {
+      color: #828282;
+      text-decoration: none;
+    }
+    &:link {
+      color: #000000;
+      text-decoration: none;
+    }
+  }
+}
+.sub {
+  margin-left: 30px;
 }
 `
 
@@ -47,14 +76,28 @@ export default function ListWrapper({
 
   
   const Item = ({ index, style }) => {
-    let content;
     if (!isItemLoaded(index)) {
-      content = "Loading...";
+      return <div style={style}>Loading...</div>;
     } else {
-      content = items[index].id;
-    }
+      const content = items[index];
+      return (
+        <div style={style}>
+          <ListItem>
+            <div className="main">
+              <div className="count">
+                <span>${index + 1}.</span>
+                <img src={arrow} width="10" height="10" />
+              </div>
+              
+            </div>
+            <div className="sub">
 
-    return <div style={style}>{content}</div>;
+            </div>
+          </ListItem>
+          {content.id}
+        </div>
+      );
+    }
   };
 
   return (
@@ -64,31 +107,34 @@ export default function ListWrapper({
           <div className="logo">
             <img src={logo} width="18" height="18" />
           </div>
-          <div className="content"></div>
+          <div className="content">
+            <b>Hacker News</b>
+          </div>
         </Header>
-        <InfiniteLoader
-            isItemLoaded={isItemLoaded}
-            itemCount={itemCount}
-            loadMoreItems={loadMoreItems}
-          >
-            {({ onItemsRendered, ref }) => (
-              <List
-                className="List"
-                height={windowHeight - 20}
-                itemCount={itemCount}
-                itemSize={40}
-                onItemsRendered={onItemsRendered}
-                ref={ref}
-                width={windowWidth - 200}
-                minimumBatchSize={list.batchSize}
-                threshold={20}
-              >
-                {Item}
-              </List>
-            )}
-        </InfiniteLoader>
+        <Container>
+          <InfiniteLoader
+              isItemLoaded={isItemLoaded}
+              itemCount={itemCount}
+              loadMoreItems={loadMoreItems}
+            >
+              {({ onItemsRendered, ref }) => (
+                <List
+                  className="List"
+                  height={windowHeight - 40}
+                  itemCount={itemCount}
+                  itemSize={40}
+                  onItemsRendered={onItemsRendered}
+                  ref={ref}
+                  width={windowWidth - 200}
+                  minimumBatchSize={list.batchSize}
+                  threshold={20}
+                >
+                  {Item}
+                </List>
+              )}
+          </InfiniteLoader>        
+        </Container>
       </div>
-        
     </Wrapper>
   );
 }
