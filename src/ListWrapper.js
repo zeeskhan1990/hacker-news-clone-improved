@@ -2,6 +2,7 @@ import React from "react";
 import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import styled from "styled-components";
+import ReactHtmlParser from 'react-html-parser';
 import useWindowDimensions from "./hooks/useWindowDimensions";
 import {list} from "./constants";
 import logo from "./assets/images/y18.gif";
@@ -35,6 +36,7 @@ align-items: center;
 
 const Container = styled.div`
   background-color: #F6F6EF;
+  padding-top: 10px;
 `
 
 const ListItem = styled.div`
@@ -42,11 +44,18 @@ margin-left: 5px;
 .main {
   display: flex;
   .count {    
-    width: 30px;
+    width: 50px;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+  }
+  .sitebit {
+    margin-left: 10px;
+    font-size: 7pt;
+    margin-top: 4px;
   }
   a {
+    margin-left: 5px;
     &:visited {
       color: #828282;
       text-decoration: none;
@@ -58,9 +67,50 @@ margin-left: 5px;
   }
 }
 .sub {
-  margin-left: 30px;
+  margin-left: 55px;
+  font-size: 7pt;
+  display: flex;
 }
 `
+
+const getTimeDifference = (diffTime) => {
+  const currentUnixTime = Math.floor(new Date().getTime()/1000)
+  const diffInSeconds = currentUnixTime - diffTime
+  if(diffInSeconds <= 60) {
+    return `1 minute`
+  } else if(diffInSeconds <= 3600) {
+    return `${Math.floor(diffInSeconds/60)} minutes`
+  } else if(diffInSeconds <= 3600*24) {
+    return `${Math.floor(diffInSeconds/3600)} hours`
+  } else {
+    return `${Math.floor(diffInSeconds/(3600*24))} days`
+  }
+  // Need further check if singular or plural, i.e, minute/minutes and day/days
+}
+
+// NOT full proof, need a lookup to http://publicsuffix.org/ to check multi block subdomains such as .co.uk
+const getSitebitUrl = (url) => {
+  if(!!url) {    
+    const hostName = new URL(url).hostname
+    const separate = hostName.split('.')
+    if(separate[separate.length -1] === "com" && separate[separate.length -2] === "ycombinator") {
+      return null
+    } else {
+      if(separate.length > 2) {
+        if(separate[separate.length -1] === "com" || separate[separate.length -1] === "net" || separate[separate.length -1] === "org" ) {
+          separate.shift()
+          return separate.join('.')
+        } else {
+          return hostName
+        }
+      } else {
+        return hostName
+      }
+    }
+  } else {
+    return null
+  }
+}
 
 export default function ListWrapper({
   hasNextPage,
@@ -74,27 +124,31 @@ export default function ListWrapper({
   const loadMoreItems = isNextPageLoading ? () => {} : loadNextPage;
   const isItemLoaded = (index) => !hasNextPage || index < items.length;
 
-  
   const Item = ({ index, style }) => {
     if (!isItemLoaded(index)) {
       return <div style={style}>Loading...</div>;
     } else {
       const content = items[index];
+      const sitebitUrl = getSitebitUrl(content.url)
       return (
         <div style={style}>
           <ListItem>
             <div className="main">
               <div className="count">
-                <span>${index + 1}.</span>
+                <span>{index + 1}.</span>
                 <img src={arrow} width="10" height="10" />
               </div>
-              
+              <a href={content.url}>{ReactHtmlParser(content.title)}</a>
+              <span className="sitebit">
+                {sitebitUrl ? `(${sitebitUrl})` : null}
+              </span>
             </div>
             <div className="sub">
-
+              <span>{content.score} points by {content.by} {getTimeDifference(content.time)} ago |</span>
+              <span>&nbsp;hide |</span>
+              <span>&nbsp;{content.descendants} comments</span>
             </div>
           </ListItem>
-          {content.id}
         </div>
       );
     }
@@ -109,6 +163,7 @@ export default function ListWrapper({
           </div>
           <div className="content">
             <b>Hacker News</b>
+            <span style={{marginLeft: 10, cursor: 'pointer'}}>new</span>
           </div>
         </Header>
         <Container>
