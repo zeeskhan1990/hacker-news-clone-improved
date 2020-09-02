@@ -1,6 +1,6 @@
 const list = {
     maxSize: 500,
-    batchSize: 15,
+    batchSize: 20,
     type: {
         "new": "newstories",
         "top": "topstories"
