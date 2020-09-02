@@ -7,6 +7,7 @@ import useWindowDimensions from "./hooks/useWindowDimensions";
 import {list} from "./constants";
 import logo from "./assets/images/y18.gif";
 import arrow from "./assets/images/grayarrow.gif";
+import { ReactComponent as Spinner } from './assets/images/spinner-1.svg';
 
 const Wrapper = styled.div`
 margin-top: 10px;
@@ -22,6 +23,7 @@ align-items: center;
   margin-left: 5px;
   margin-bottom: -1px;
   margin-top: 1px;
+  cursor: pointer;
   img {
     border:1px white solid;
   }
@@ -116,17 +118,25 @@ export default function ListWrapper({
   hasNextPage,
   isNextPageLoading,
   items,
-  loadNextPage
+  loadNextPage,
+  listType,
+  setListType
 }) {
 
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const itemCount = hasNextPage ? items.length + 1 : items.length;
   const loadMoreItems = isNextPageLoading ? () => {} : loadNextPage;
-  const isItemLoaded = (index) => !hasNextPage || index < items.length;
+  const isItemLoaded = (index) => {
+    const loadState = !hasNextPage || index < items.length;
+    console.log(loadState)
+    console.log(index)
+    console.log(items.length)
+    return loadState
+  }
 
   const Item = ({ index, style }) => {
     if (!isItemLoaded(index)) {
-      return <div style={style}>Loading...</div>;
+      return <div style={style}><Spinner/></div>;
     } else {
       const content = items[index];
       const sitebitUrl = getSitebitUrl(content.url)
@@ -136,7 +146,7 @@ export default function ListWrapper({
             <div className="main">
               <div className="count">
                 <span>{index + 1}.</span>
-                <img src={arrow} width="10" height="10" />
+                <img src={arrow} alt="arrow" width="10" height="10" />
               </div>
               <a href={content.url}>{ReactHtmlParser(content.title)}</a>
               <span className="sitebit">
@@ -158,12 +168,12 @@ export default function ListWrapper({
     <Wrapper>
       <div>
         <Header>
-          <div className="logo">
-            <img src={logo} width="18" height="18" />
+          <div className="logo" onClick={() => setListType(list.type.top)}>
+            <img src={logo} alt="logo" width="18" height="18" />
           </div>
           <div className="content">
-            <b>Hacker News</b>
-            <span style={{marginLeft: 10, cursor: 'pointer'}}>new</span>
+            <b style={{cursor: 'pointer'}} onClick={() => setListType(list.type.top)}>Hacker News</b>
+            <span onClick={() => setListType(list.type.new)} style={{marginLeft: 10, cursor: 'pointer'}}>new</span>
           </div>
         </Header>
         <Container>

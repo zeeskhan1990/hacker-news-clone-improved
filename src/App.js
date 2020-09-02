@@ -44,10 +44,10 @@ function App() {
   };
 
   const handleListTypeChange = () => {
+    setStoryList(null)
+    setItems([])
     setHasNextPage(true)
     setIsNextPageLoading(false)
-    setItems([])
-    setStoryList(null)
   }
 
   useEffect(() => {
