@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import ListWrapper from "./ListWrapper";
 import {list} from "./constants";
 import request from "./request";
@@ -10,6 +10,7 @@ function App() {
   const [items, setItems] = useState([])
   const [listType, setListType] = useState(list.type.top)
   const [storyList, setStoryList] = useState(null)
+  const listTypeRef = useRef(listType)
 
   const loadListDetails = async (stories, startIndex) => {
     const endIndex = startIndex + (list.batchSize - 1) > list.maxSize - 1 ? list.maxSize - 1 : startIndex + (list.batchSize - 1)
@@ -18,11 +19,13 @@ function App() {
       allRequests.push(request.get(`/item/${stories[i]}.json`))
     }
     const responses = await Promise.all(allRequests)
-    setIsNextPageLoading(false)
-    setHasNextPage(items.length < list.maxSize)
-    setItems([...items].concat(
-      responses.map((response) => response.data)
-    ))
+    if(listTypeRef.current === listType) {
+      setIsNextPageLoading(false)
+      setHasNextPage(items.length < list.maxSize)
+      setItems([...items].concat(
+        responses.map((response) => response.data)
+      ))
+    }
   }
 
   const loadNextPage = async (startIndex) => {
@@ -51,6 +54,7 @@ function App() {
   }
 
   useEffect(() => {
+    listTypeRef.current = listType
     handleListTypeChange()
   }, [listType])
   
